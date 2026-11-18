@@ -1,0 +1,14 @@
+{
+  "name": "agent-studio",
+  "description": "AI Agent Studio - Claude & Remotion Audio-Driven Video Creation Platform",
+  "tools": [
+    {
+      "name": "generate_video",
+      "command": "node bin/agent-studio-cli.js claude --prompt \"$PROMPT\" --ratio \"$RATIO\""
+    },
+    {
+      "name": "render_video",
+      "command": "npm run remotion:render"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Sparkles,
   Send,
@@ -15,6 +15,10 @@ import {
   Music,
   Sliders,
   Flame,
+  Cpu,
+  Key,
+  ShieldCheck,
+  Headphones,
 } from "lucide-react";
 import { VideoProject, AspectRatio } from "@/remotion/types";
 
@@ -23,6 +27,8 @@ interface AIAssistantPanelProps {
   onProjectUpdate: (updated: VideoProject) => void;
   onRatioChange: (ratio: AspectRatio) => void;
 }
+
+type AIModelEngine = "claude-3-5-sonnet" | "claude-3-haiku" | "gemini-flash" | "local-ai";
 
 const PRESET_TOPICS = [
   {
@@ -64,18 +70,35 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
 }) => {
   const [prompt, setPrompt] = useState("");
   const [durationSeconds, setDurationSeconds] = useState(15);
+  const [selectedEngine, setSelectedEngine] = useState<AIModelEngine>("claude-3-5-sonnet");
+  const [audioSync, setAudioSync] = useState(true);
   const [voiceLang, setVoiceLang] = useState<"id" | "en">("id");
   const [autoVoiceover, setAutoVoiceover] = useState(true);
+  const [claudeApiKey, setClaudeApiKey] = useState("");
+  const [showKeyModal, setShowKeyModal] = useState(false);
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentStep, setCurrentStep] = useState<string | null>(null);
+
+  // Load saved Claude API key if exists
+  useEffect(() => {
+    const saved = localStorage.getItem("anthropic_api_key");
+    if (saved) setClaudeApiKey(saved);
+  }, []);
+
+  const handleSaveApiKey = (key: string) => {
+    setClaudeApiKey(key);
+    localStorage.setItem("anthropic_api_key", key);
+    setShowKeyModal(false);
+  };
 
   const [chatLog, setChatLog] = useState<
     { role: "agent" | "user"; text: string; time: string }[]
   >([
     {
       role: "agent",
-      text: "Halo! Saya AI Director Studio. Ketikkan ide video apa saja, dan saya akan otomatis merangkai storyboard, klip foto/video, musik bebas hak cipta, subtitle animasi TikTok, serta suara narasi AI untukmu!",
-      time: "Siap Perintah",
+      text: "Halo! Saya adalah Claude & Remotion AI Director. Saya dapat menyusun video otomatis di mana adegan visual, transisi, dan subtitle sinkron presisi mengikuti alur narasi audio yang diucapkan. Silakan ketik perintah atau ide videomu!",
+      time: "Claude Ready",
     },
   ]);
 
@@ -124,28 +147,43 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
 
     addLog("user", textToRun);
     setIsGenerating(true);
-    setCurrentStep("1. Menulis konsep naskah & storyboard...");
+
+    const isClaude = selectedEngine.startsWith("claude");
+    setCurrentStep(
+      isClaude
+        ? "1. Claude 3.5 menganalisis naskah & menghitung sinkronisasi audio..."
+        : "1. Menyusun konsep naskah & storyboard visual..."
+    );
 
     try {
-      const res = await fetch("/api/ai/script", {
+      const endpoint = isClaude ? "/api/ai/claude" : "/api/ai/script";
+      const modelPayload =
+        selectedEngine === "claude-3-haiku"
+          ? "claude-3-haiku-20240307"
+          : "claude-3-5-sonnet-20241022";
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: textToRun,
+          targetDuration: durationSeconds,
           aspectRatio: project.aspectRatio,
-          durationSeconds,
+          model: modelPayload,
+          apiKey: claudeApiKey || undefined,
+          audioSync,
         }),
       });
 
-      setCurrentStep("2. Memilih visual, efek gerak Ken-Burns & musik...");
+      setCurrentStep("2. Memotong adegan mengikuti ritme audio & Ken-Burns...");
       const data = await res.json();
 
       if (data.success && data.project) {
         let finalProject = data.project;
 
-        // Auto-generate real voiceover if enabled
+        // Auto-generate audio voiceover
         if (autoVoiceover && finalProject.voiceover?.text) {
-          setCurrentStep("3. Mensintesis suara narasi AI...");
+          setCurrentStep("3. Mensintesis rekaman suara narasi AI...");
           try {
             const voRes = await fetch("/api/ai/voiceover", {
               method: "POST",
@@ -165,10 +203,13 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
                     id: `vo_${Date.now()}`,
                     type: "voiceover",
                     url: voData.audioUrl,
-                    title: `Suara Narasi (${voiceLang === "id" ? "Indonesia" : "English"})`,
+                    title: `Suara Narasi Claude (${voiceLang === "id" ? "Indonesia" : "English"})`,
                     volume: 0.95,
                     startFrame: 5,
-                    durationInFrames: finalProject.clips.reduce((a: number, c: any) => a + c.durationInFrames, 0),
+                    durationInFrames: finalProject.clips.reduce(
+                      (a: number, c: any) => a + c.durationInFrames,
+                      0
+                    ),
                   },
                 ],
               };
@@ -178,14 +219,16 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
           }
         }
 
-        setCurrentStep("4. Menyinkronkan subtitle kata per kata...");
+        setCurrentStep("4. Menyinkronkan subtitle Alex Hormozi kata per kata...");
         setTimeout(() => {
           onProjectUpdate(finalProject);
           setIsGenerating(false);
           setCurrentStep(null);
           addLog(
             "agent",
-            `Selesai! Video "${finalProject.title}" berhasil dibuat dengan ${finalProject.clips.length} adegan, narasi suara AI (${voiceLang.toUpperCase()}), musik latar bebas royalti, dan subtitle Alex Hormozi! Tekan tombol Play di player untuk melihatnya.`
+            `✨ Berhasil! Video "${finalProject.title}" telah diproduksi dengan ${
+              isClaude ? "Claude AI Engine" : "AI Studio"
+            }. Setiap adegan visual berganti tepat saat jeda narasi suara (${voiceLang.toUpperCase()}), musik latar bebas hak cipta, dan subtitle animasi TikTok. Klik Play di player untuk menikmati hasilnya!`
           );
         }, 500);
       } else {
@@ -202,55 +245,109 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-studio-panel border-r border-studio-border w-80 md:w-96 text-slate-200">
-      {/* Panel Title */}
-      <div className="p-3.5 border-b border-studio-border flex items-center justify-between bg-gradient-to-r from-indigo-950/40 to-studio-panel">
+      {/* Panel Header */}
+      <div className="p-3.5 border-b border-studio-border flex items-center justify-between bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-studio-panel">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-cyan-400">
-            <Bot className="w-3.5 h-3.5" />
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-500 border border-purple-400/40 flex items-center justify-center text-white shadow-md">
+            <Cpu className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-wide">
-              AI Video Director
-            </h2>
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-sm font-bold text-white tracking-wide">
+                Claude &amp; Remotion AI
+              </h2>
+            </div>
             <p className="text-[10px] text-slate-400">
-              Prompt ke Video Otomatis
+              Audio-Driven Video Generator
             </p>
           </div>
         </div>
-        <span className="flex items-center gap-1.5 text-[10px] font-semibold text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/30">
-          <Sparkles className="w-3 h-3 text-cyan-400 animate-spin" />
-          Aktif
-        </span>
-      </div>
 
-      {/* Quick Topic Chips */}
-      <div className="p-3 border-b border-studio-border bg-studio-dark/40">
-        <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 mb-2">
-          <Flame className="w-3 h-3 text-amber-400" />
-          <span>Topik Populer Cepat:</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {PRESET_TOPICS.map((topic, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleGenerate(topic.prompt)}
-              disabled={isGenerating}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-studio-card hover:bg-indigo-600/25 hover:border-indigo-500/50 border border-studio-border text-[11px] font-semibold text-slate-300 hover:text-white transition group"
-            >
-              <span>{topic.icon}</span>
-              <span>{topic.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Voice & Duration Settings Bar */}
-      <div className="px-3 py-2 border-b border-studio-border bg-studio-dark/70 flex items-center justify-between text-xs text-slate-300">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
-            <Mic className="w-3 h-3 text-cyan-400" />
-            Suara:
+        <button
+          onClick={() => setShowKeyModal(true)}
+          className={`p-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition ${
+            claudeApiKey
+              ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
+              : "bg-studio-card border-studio-border text-slate-400 hover:text-white"
+          }`}
+          title="Pengaturan Kunci API Claude (Opsional)"
+        >
+          <Key className="w-3.5 h-3.5" />
+          <span className="text-[10px]">
+            {claudeApiKey ? "API Aktif" : "API Key"}
           </span>
+        </button>
+      </div>
+
+      {/* Model Engine Selector */}
+      <div className="p-2.5 border-b border-studio-border bg-studio-dark/50 space-y-1.5">
+        <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+          <span className="flex items-center gap-1">
+            <Bot className="w-3.5 h-3.5 text-purple-400" />
+            Mesin AI:
+          </span>
+          <span className="text-[9px] text-cyan-400 font-mono">
+            {selectedEngine.includes("claude") ? "Anthropic Claude" : "Fast Engine"}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            onClick={() => setSelectedEngine("claude-3-5-sonnet")}
+            className={`p-1.5 rounded-lg text-left text-[11px] font-semibold border transition ${
+              selectedEngine === "claude-3-5-sonnet"
+                ? "bg-purple-600/30 border-purple-500 text-white shadow"
+                : "bg-studio-card border-studio-border text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <div className="flex items-center gap-1 font-bold text-purple-300">
+              <Sparkles className="w-3 h-3 text-purple-400" />
+              Claude 3.5 Sonnet
+            </div>
+            <div className="text-[9px] text-slate-400">Narasi Audio Presisi</div>
+          </button>
+
+          <button
+            onClick={() => setSelectedEngine("claude-3-haiku")}
+            className={`p-1.5 rounded-lg text-left text-[11px] font-semibold border transition ${
+              selectedEngine === "claude-3-haiku"
+                ? "bg-purple-600/30 border-purple-500 text-white shadow"
+                : "bg-studio-card border-studio-border text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <div className="flex items-center gap-1 font-bold text-purple-300">
+              <Zap className="w-3 h-3 text-amber-400" />
+              Claude 3 Haiku
+            </div>
+            <div className="text-[9px] text-slate-400">Generasi Cepat</div>
+          </button>
+        </div>
+      </div>
+
+      {/* Audio-Driven Scene Sync Toggle */}
+      <div className="px-3 py-2 border-b border-studio-border bg-studio-dark/30 flex items-center justify-between text-xs">
+        <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-semibold text-slate-300">
+          <Headphones className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Sinkronisasi Potongan Audio (Audio-Sync)</span>
+        </label>
+        <button
+          onClick={() => setAudioSync(!audioSync)}
+          className={`w-9 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+            audioSync ? "bg-cyan-500" : "bg-slate-700"
+          }`}
+        >
+          <div
+            className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform ${
+              audioSync ? "translate-x-4" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Voice Language & Duration */}
+      <div className="px-3 py-2 border-b border-studio-border bg-studio-dark/60 flex items-center justify-between text-xs text-slate-300">
+        <div className="flex items-center gap-1.5">
+          <Mic className="w-3.5 h-3.5 text-indigo-400" />
+          <span className="text-[11px] text-slate-400 font-semibold">Suara:</span>
           <button
             onClick={() => setVoiceLang("id")}
             className={`px-2 py-0.5 rounded text-[10px] font-bold transition ${
@@ -281,8 +378,8 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
               onClick={() => setDurationSeconds(s)}
               className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition ${
                 durationSeconds === s
-                  ? "bg-cyan-600 text-white"
-                  : "bg-studio-card text-slate-400 hover:text-slate-200"
+                  ? "bg-purple-600 text-white"
+                : "bg-studio-card text-slate-400 hover:text-slate-200"
               }`}
             >
               {s}s
@@ -303,7 +400,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
             <div
               className={`max-w-[88%] text-xs p-3 rounded-xl leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-indigo-600 text-white rounded-br-none shadow-md"
+                  ? "bg-purple-600 text-white rounded-br-none shadow-md"
                   : "bg-studio-card border border-studio-border text-slate-200 rounded-bl-none shadow-sm"
               }`}
             >
@@ -317,15 +414,13 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
 
         {isGenerating && (
           <div className="flex flex-col items-start animate-fade-in">
-            <div className="bg-gradient-to-r from-indigo-950/70 to-studio-card border border-indigo-500/50 text-xs p-3.5 rounded-xl rounded-bl-none shadow-lg flex items-center gap-2.5 text-indigo-300">
-              <RefreshCw className="w-4 h-4 animate-spin text-cyan-400" />
+            <div className="bg-gradient-to-r from-purple-950/70 to-studio-card border border-purple-500/50 text-xs p-3.5 rounded-xl rounded-bl-none shadow-lg flex items-center gap-2.5 text-purple-300">
+              <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
               <div className="flex flex-col">
                 <span className="font-bold text-white text-[11px]">
-                  Agent Sedang Memproduksi Video
+                  Claude Sedang Menyusun Video
                 </span>
-                <span className="text-[10px] text-cyan-300">
-                  {currentStep}
-                </span>
+                <span className="text-[10px] text-cyan-300">{currentStep}</span>
               </div>
             </div>
           </div>
@@ -346,23 +441,64 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             disabled={isGenerating}
-            placeholder="Ketik ide video apa saja (contoh: Kopi senja 15s)..."
-            className="w-full bg-studio-dark border border-studio-border rounded-xl pl-3.5 pr-10 py-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-inner"
+            placeholder="Perintahkan Claude (contoh: Video kopi pagi 15s)..."
+            className="w-full bg-studio-dark border border-studio-border rounded-xl pl-3.5 pr-10 py-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition shadow-inner"
           />
           <button
             type="submit"
             disabled={!prompt.trim() || isGenerating}
-            className="absolute right-1.5 p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 disabled:opacity-30 text-white shadow-md transition active:scale-95"
-            title="Generate Video Sekarang"
+            className="absolute right-1.5 p-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-30 text-white shadow-md transition active:scale-95"
+            title="Generate dengan Claude"
           >
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>
         <div className="flex items-center justify-between mt-2 text-[10px] text-slate-500">
-          <span>⚡ Otomatis storyboard, musik &amp; subtitle</span>
-          <span className="font-mono text-cyan-400">100% Free Engine</span>
+          <span>🎧 Sinkronisasi adegan &amp; narasi suara</span>
+          <span className="font-mono text-purple-400">Claude + Remotion</span>
         </div>
       </div>
+
+      {/* Claude API Key Modal */}
+      {showKeyModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-studio-panel border border-studio-border rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl animate-slide-up">
+            <div className="flex items-center gap-2 text-white font-bold text-sm">
+              <Key className="w-4 h-4 text-purple-400" />
+              <span>Pengaturan Kunci API Anthropic Claude</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Kunci API bersifat <strong>OPSIONAL</strong>. Jika tidak diisi, studio akan tetap berjalan otomatis menggunakan mesin Claude-Tuned Engine bawaan secara 100% gratis!
+            </p>
+            <input
+              type="password"
+              placeholder="sk-ant-api03-..."
+              defaultValue={claudeApiKey}
+              id="claude_api_input"
+              className="w-full bg-studio-dark border border-studio-border rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-mono"
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => setShowKeyModal(false)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-800"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  const val = (
+                    document.getElementById("claude_api_input") as HTMLInputElement
+                  )?.value;
+                  handleSaveApiKey(val || "");
+                }}
+                className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 transition"
+              >
+                Simpan Kunci
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
