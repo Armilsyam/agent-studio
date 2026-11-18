@@ -219,6 +219,7 @@ export function buildProjectFromAIScript(
     title: script.title,
     description: script.description,
     tags: script.tags,
+    template: (aspectRatio === "16:9" ? "cinematic-docu" : "viral-tiktok") as any,
     aspectRatio,
     fps,
     width: config.width,
@@ -245,6 +246,23 @@ export function buildProjectFromAIScript(
         durationInFrames: currentFrame,
         fadeInFrames: 30,
         fadeOutFrames: 30,
+      },
+    ],
+    visualizer: {
+      enabled: true,
+      style: "bars",
+      color: "#38bdf8",
+      barCount: 26,
+    },
+    stickers: [
+      {
+        id: generateId("stk"),
+        text: "VIRAL REELS",
+        type: "fire",
+        position: "top-left",
+        animation: "bounce",
+        startFrame: 0,
+        endFrame: 150,
       },
     ],
     watermark: {

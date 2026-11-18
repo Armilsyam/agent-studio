@@ -12,9 +12,10 @@ export interface StockAudioItem {
   id: string;
   title: string;
   genre: string;
-  duration: number; // in seconds
+  duration: number;
   url: string;
   author: string;
+  license: string;
 }
 
 export const CURATED_STOCK_MEDIA: StockMediaItem[] = [
@@ -82,6 +83,15 @@ export const CURATED_STOCK_MEDIA: StockMediaItem[] = [
     thumbnailUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=300&auto=format&fit=crop&q=60",
   },
   {
+    id: "stock_abstract_1",
+    type: "photo",
+    title: "Neon Light Tunnel",
+    category: "Cyberpunk",
+    author: "Sandro Katalina",
+    url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1080&auto=format&fit=crop&q=80",
+    thumbnailUrl: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300&auto=format&fit=crop&q=60",
+  },
+  {
     id: "stock_video_1",
     type: "video",
     title: "Cosmic Particles Loop",
@@ -109,6 +119,7 @@ export const CURATED_STOCK_AUDIO: StockAudioItem[] = [
     duration: 120,
     url: "https://cdn.freesound.org/previews/665/665181_11861866-lq.mp3",
     author: "Freesound Community",
+    license: "CC0 (No Copyright)",
   },
   {
     id: "audio_cinematic_1",
@@ -117,6 +128,7 @@ export const CURATED_STOCK_AUDIO: StockAudioItem[] = [
     duration: 90,
     url: "https://cdn.freesound.org/previews/469/469273_10207038-lq.mp3",
     author: "Royalty Free Audio",
+    license: "CC0 (No Copyright)",
   },
   {
     id: "audio_upbeat_1",
@@ -125,6 +137,7 @@ export const CURATED_STOCK_AUDIO: StockAudioItem[] = [
     duration: 75,
     url: "https://cdn.freesound.org/previews/512/512471_11235122-lq.mp3",
     author: "Soundtrack Library",
+    license: "CC0 (No Copyright)",
   },
   {
     id: "audio_ambient_1",
@@ -133,13 +146,31 @@ export const CURATED_STOCK_AUDIO: StockAudioItem[] = [
     duration: 150,
     url: "https://cdn.freesound.org/previews/556/556942_11488319-lq.mp3",
     author: "Audio Lab",
+    license: "CC0 (No Copyright)",
+  },
+  {
+    id: "audio_synthwave_1",
+    title: "Retro 80s Synthwave Drive",
+    genre: "Synthwave",
+    duration: 110,
+    url: "https://cdn.freesound.org/previews/608/608645_11861866-lq.mp3",
+    author: "Retro Wave Studio",
+    license: "CC0 (No Copyright)",
+  },
+  {
+    id: "audio_trap_1",
+    title: "Modern Bass Trap Beat",
+    genre: "Hip-Hop / Trap",
+    duration: 80,
+    url: "https://cdn.freesound.org/previews/568/568434_12496836-lq.mp3",
+    author: "Beat Crafter",
+    license: "CC0 (No Copyright)",
   },
 ];
 
 export async function searchStockMedia(query: string, type: "all" | "photo" | "video" = "all"): Promise<StockMediaItem[]> {
   const normalizedQuery = query.toLowerCase().trim();
 
-  // Filter curated collection first
   const localResults = CURATED_STOCK_MEDIA.filter((item) => {
     const matchesType = type === "all" || item.type === type;
     const matchesQuery =

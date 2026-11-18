@@ -1,4 +1,4 @@
-import { VideoProject, ASPECT_RATIOS } from "../remotion/types";
+import { VideoProject, ASPECT_RATIOS, VideoTemplate } from "../remotion/types";
 import { generateId } from "./utils";
 
 export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
@@ -6,6 +6,7 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
   title: "Masa Depan AI: Revolusi Kreativitas Tanpa Batas",
   description: "Video otomatis tentang revolusi kecerdasan buatan dalam menciptakan visual, video, dan kreativitas masa depan.",
   tags: ["#AIAgent", "#Remotion", "#TechReels", "#KecerdasanBuatan", "#StudioAI"],
+  template: "viral-tiktok",
   aspectRatio: "9:16",
   fps: 30,
   width: ASPECT_RATIOS["9:16"].width,
@@ -16,7 +17,7 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
       type: "photo",
       name: "AI Cyber Brain",
       url: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1080&auto=format&fit=crop&q=80",
-      durationInFrames: 90, // 3 seconds
+      durationInFrames: 90,
       transition: "fade",
       transitionDuration: 15,
       animationEffect: "ken-burns",
@@ -29,7 +30,7 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
       type: "photo",
       name: "Robot Assistant Future",
       url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1080&auto=format&fit=crop&q=80",
-      durationInFrames: 90, // 3 seconds
+      durationInFrames: 90,
       transition: "slide-left",
       transitionDuration: 15,
       animationEffect: "zoom-in",
@@ -42,7 +43,7 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
       type: "photo",
       name: "Creative Light Portal",
       url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1080&auto=format&fit=crop&q=80",
-      durationInFrames: 90, // 3 seconds
+      durationInFrames: 90,
       transition: "zoom-in",
       transitionDuration: 15,
       animationEffect: "pan-left",
@@ -54,8 +55,8 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
       id: "clip_4",
       type: "photo",
       name: "Abstract Neon Circuit",
-      url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1080&auto=format&fit=crop&q=80",
-      durationInFrames: 90, // 3 seconds
+      url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1080&auto=format&fit=crop&q=80",
+      durationInFrames: 90,
       transition: "fade",
       transitionDuration: 15,
       animationEffect: "pulse",
@@ -138,12 +139,45 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
       id: "bgm_default",
       type: "bgm",
       url: "https://cdn.freesound.org/previews/665/665181_11861866-lq.mp3",
-      title: "Lo-Fi Aesthetic Cyber Beat",
+      title: "Lo-Fi Aesthetic Cyber Beat (No Copyright)",
       volume: 0.35,
       startFrame: 0,
       durationInFrames: 360,
       fadeInFrames: 30,
       fadeOutFrames: 30,
+    },
+  ],
+  voiceover: {
+    enabled: true,
+    language: "id-ID",
+    text: "Kini membuat video otomatis jauh lebih mudah! Cukup ketikkan ide dan biarkan AI bekerja.",
+    voiceGender: "female",
+    speed: 1.0,
+  },
+  visualizer: {
+    enabled: true,
+    style: "bars",
+    color: "#38bdf8",
+    barCount: 26,
+  },
+  stickers: [
+    {
+      id: "stk_1",
+      text: "VIRAL REELS",
+      type: "fire",
+      position: "top-left",
+      animation: "bounce",
+      startFrame: 0,
+      endFrame: 180,
+    },
+    {
+      id: "stk_2",
+      text: "AI STUDIO",
+      type: "verified",
+      position: "bottom-right",
+      animation: "pulse",
+      startFrame: 60,
+      endFrame: 360,
     },
   ],
   watermark: {
@@ -156,7 +190,8 @@ export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
 
 export function createNewProject(
   title: string = "Proyek Video Baru",
-  aspectRatio: "9:16" | "16:9" | "1:1" = "9:16"
+  aspectRatio: "9:16" | "16:9" | "1:1" = "9:16",
+  template: VideoTemplate = "viral-tiktok"
 ): VideoProject {
   const config = ASPECT_RATIOS[aspectRatio];
   return {
@@ -164,6 +199,7 @@ export function createNewProject(
     title,
     description: "Proyek video baru dibuat dengan AI Agent Studio",
     tags: ["#AgentStudio", "#VideoMaker"],
+    template,
     aspectRatio,
     fps: 30,
     width: config.width,
@@ -180,6 +216,13 @@ export function createNewProject(
       lines: [],
     },
     audioLayers: [],
+    visualizer: {
+      enabled: true,
+      style: "bars",
+      color: "#38bdf8",
+      barCount: 26,
+    },
+    stickers: [],
     watermark: {
       text: "@AgentStudio",
       position: "top-right",

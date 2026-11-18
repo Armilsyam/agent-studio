@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AspectRatio, ASPECT_RATIOS } from "@/remotion/types";
+import { AspectRatio, ASPECT_RATIOS, VideoTemplate } from "@/remotion/types";
 import {
   Smartphone,
   Tv,
@@ -12,11 +12,16 @@ import {
   Scissors,
   Layers,
   Wand2,
+  Film,
+  Radio,
+  ShoppingBag,
 } from "lucide-react";
 
 interface HeaderProps {
   currentRatio: AspectRatio;
   onRatioChange: (ratio: AspectRatio) => void;
+  currentTemplate: VideoTemplate;
+  onTemplateChange: (template: VideoTemplate) => void;
   onOpenExport: () => void;
   onOpenPublisher: () => void;
   onOpenClipCutter: () => void;
@@ -28,6 +33,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   currentRatio,
   onRatioChange,
+  currentTemplate,
+  onTemplateChange,
   onOpenExport,
   onOpenPublisher,
   onOpenClipCutter,
@@ -48,43 +55,73 @@ export const Header: React.FC<HeaderProps> = ({
               AGENT STUDIO
             </span>
             <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-              Remotion AI
+              Remotion 4.x
             </span>
           </div>
           <input
             type="text"
             value={projectTitle}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="text-xs text-slate-400 hover:text-slate-200 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 -ml-1 w-64 truncate"
+            className="text-xs text-slate-400 hover:text-slate-200 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 -ml-1 w-56 md:w-64 truncate"
             title="Klik untuk mengubah nama proyek"
           />
         </div>
       </div>
 
-      {/* Aspect Ratio Switcher */}
-      <div className="hidden md:flex items-center bg-studio-dark p-1 rounded-xl border border-studio-border">
-        {(["9:16", "16:9", "1:1"] as AspectRatio[]).map((ratio) => {
-          const config = ASPECT_RATIOS[ratio];
-          const isSelected = currentRatio === ratio;
-          const Icon =
-            ratio === "9:16" ? Smartphone : ratio === "16:9" ? Tv : Square;
+      {/* Middle Bar: Template Switcher & Aspect Ratio */}
+      <div className="hidden lg:flex items-center gap-2">
+        {/* Template Selector */}
+        <div className="flex items-center bg-studio-dark p-1 rounded-xl border border-studio-border">
+          {[
+            { id: "viral-tiktok", label: "TikTok Viral", icon: Sparkles },
+            { id: "cinematic-docu", label: "Dokumenter", icon: Film },
+            { id: "podcast-waveform", label: "Audiogram", icon: Radio },
+            { id: "product-promo", label: "Promo Produk", icon: ShoppingBag },
+          ].map((tmpl) => {
+            const Icon = tmpl.icon;
+            const isSelected = currentTemplate === tmpl.id;
+            return (
+              <button
+                key={tmpl.id}
+                onClick={() => onTemplateChange(tmpl.id as VideoTemplate)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  isSelected
+                    ? "bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-md"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                <span>{tmpl.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          return (
-            <button
-              key={ratio}
-              onClick={() => onRatioChange(ratio)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                isSelected
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-              }`}
-              title={config.label}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{ratio}</span>
-            </button>
-          );
-        })}
+        {/* Aspect Ratio Switcher */}
+        <div className="flex items-center bg-studio-dark p-1 rounded-xl border border-studio-border">
+          {(["9:16", "16:9", "1:1"] as AspectRatio[]).map((ratio) => {
+            const config = ASPECT_RATIOS[ratio];
+            const isSelected = currentRatio === ratio;
+            const Icon =
+              ratio === "9:16" ? Smartphone : ratio === "16:9" ? Tv : Square;
+
+            return (
+              <button
+                key={ratio}
+                onClick={() => onRatioChange(ratio)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  isSelected
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                }`}
+                title={config.label}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{ratio}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -116,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 rounded-lg shadow-lg shadow-indigo-500/25 transition active:scale-95"
         >
           <Download className="w-3.5 h-3.5" />
-          <span>Render & Unduh</span>
+          <span>Render &amp; Unduh</span>
         </button>
       </div>
     </header>

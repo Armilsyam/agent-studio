@@ -6,13 +6,18 @@ import { VideoProject } from "./types";
 import { SceneRenderer } from "./SceneRenderer";
 import { SubtitleRenderer } from "./SubtitleRenderer";
 import { AudioTrack } from "./AudioTrack";
+import { AudioVisualizer } from "./AudioVisualizer";
+import { AnimatedStickers } from "./AnimatedStickers";
+import { TemplateOverlay } from "./TemplateOverlay";
+import { getTotalDurationInFrames } from "@/lib/utils";
 
 export interface MainCompositionProps {
   project: VideoProject;
 }
 
 export const MainComposition: React.FC<MainCompositionProps> = ({ project }) => {
-  const { clips, captions, audioLayers, watermark } = project;
+  const { clips, captions, audioLayers, watermark, template = "viral-tiktok", visualizer, stickers } = project;
+  const totalFrames = getTotalDurationInFrames(clips);
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#030712" }}>
@@ -31,8 +36,17 @@ export const MainComposition: React.FC<MainCompositionProps> = ({ project }) => 
       {/* Audio Track Layers (BGM + Voiceover + SFX) */}
       <AudioTrack layers={audioLayers} />
 
+      {/* Dynamic Animated Audio Waveform Visualizer */}
+      <AudioVisualizer config={visualizer} />
+
+      {/* Animated Stickers & Badges */}
+      <AnimatedStickers stickers={stickers} />
+
       {/* Synchronized Captions / Subtitles */}
       <SubtitleRenderer config={captions} />
+
+      {/* Template-Specific Overlays (Cinematic letterbox, TikTok progress, Promo button) */}
+      <TemplateOverlay template={template} totalDurationFrames={totalFrames} />
 
       {/* Watermark / Brand Logo if configured */}
       {watermark?.text && (
@@ -44,7 +58,7 @@ export const MainComposition: React.FC<MainCompositionProps> = ({ project }) => 
             left: watermark.position.includes("left") ? "24px" : undefined,
             right: watermark.position.includes("right") ? "24px" : undefined,
             padding: "8px 14px",
-            background: "rgba(0, 0, 0, 0.4)",
+            background: "rgba(0, 0, 0, 0.45)",
             backdropFilter: "blur(6px)",
             borderRadius: "8px",
             border: "1px solid rgba(255, 255, 255, 0.15)",

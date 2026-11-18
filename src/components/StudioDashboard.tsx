@@ -16,10 +16,11 @@ import {
   AspectRatio,
   ASPECT_RATIOS,
   MediaClip,
+  VideoTemplate,
 } from "@/remotion/types";
 import { DEFAULT_SAMPLE_PROJECT } from "@/lib/videoProjectStore";
 import { generateId, getTotalDurationInFrames } from "@/lib/utils";
-import { Bot, Image as ImageIcon, Type, Music, Layers } from "lucide-react";
+import { Bot, Image as ImageIcon, Type, Music } from "lucide-react";
 
 export const StudioDashboard: React.FC = () => {
   const [project, setProject] = useState<VideoProject>(DEFAULT_SAMPLE_PROJECT);
@@ -30,6 +31,48 @@ export const StudioDashboard: React.FC = () => {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isPublisherOpen, setIsPublisherOpen] = useState(false);
   const [activeClipToCut, setActiveClipToCut] = useState<string | undefined>(undefined);
+
+  // Template switch
+  const handleTemplateChange = (template: VideoTemplate) => {
+    let targetRatio: AspectRatio = project.aspectRatio;
+    let targetSubtitleStyle = project.captions.style;
+
+    if (template === "viral-tiktok" || template === "podcast-waveform") {
+      targetRatio = "9:16";
+      targetSubtitleStyle = "tiktok";
+    } else if (template === "cinematic-docu") {
+      targetRatio = "16:9";
+      targetSubtitleStyle = "minimal";
+    } else if (template === "product-promo") {
+      targetRatio = "1:1";
+      targetSubtitleStyle = "box";
+    }
+
+    const config = ASPECT_RATIOS[targetRatio];
+    setProject((prev) => ({
+      ...prev,
+      template,
+      aspectRatio: targetRatio,
+      width: config.width,
+      height: config.height,
+      captions: {
+        ...prev.captions,
+        style: targetSubtitleStyle,
+        fontSize: targetRatio === "9:16" ? 42 : 36,
+      },
+      visualizer: prev.visualizer
+        ? {
+            ...prev.visualizer,
+            enabled: template === "podcast-waveform" || template === "viral-tiktok",
+          }
+        : {
+            enabled: template === "podcast-waveform" || template === "viral-tiktok",
+            style: "bars",
+            color: "#38bdf8",
+            barCount: 26,
+          },
+    }));
+  };
 
   // Aspect ratio change
   const handleRatioChange = (ratio: AspectRatio) => {
@@ -128,6 +171,8 @@ export const StudioDashboard: React.FC = () => {
       <Header
         currentRatio={project.aspectRatio}
         onRatioChange={handleRatioChange}
+        currentTemplate={project.template}
+        onTemplateChange={handleTemplateChange}
         onOpenExport={() => setIsExportOpen(true)}
         onOpenPublisher={() => setIsPublisherOpen(true)}
         onOpenClipCutter={() => handleOpenTrimmer()}
@@ -183,7 +228,7 @@ export const StudioDashboard: React.FC = () => {
                 ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
             }`}
-            title="Musik Latar & Audio"
+            title="Musik Latar & Voiceover"
           >
             <Music className="w-5 h-5" />
           </button>
@@ -212,6 +257,10 @@ export const StudioDashboard: React.FC = () => {
             audioLayers={project.audioLayers}
             onUpdateAudioLayers={(audioLayers) =>
               setProject((prev) => ({ ...prev, audioLayers }))
+            }
+            voiceoverConfig={project.voiceover}
+            onUpdateVoiceover={(voiceover) =>
+              setProject((prev) => ({ ...prev, voiceover }))
             }
             totalDurationFrames={totalFrames}
           />

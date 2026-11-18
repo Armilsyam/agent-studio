@@ -1,10 +1,12 @@
 export type AspectRatio = "9:16" | "16:9" | "1:1";
 
-export type TransitionType = "fade" | "slide-left" | "slide-right" | "zoom-in" | "zoom-out" | "none";
+export type VideoTemplate = "viral-tiktok" | "cinematic-docu" | "podcast-waveform" | "product-promo";
 
-export type AnimationEffect = "ken-burns" | "pan-left" | "pan-right" | "zoom-in" | "pulse" | "none";
+export type TransitionType = "fade" | "slide-left" | "slide-right" | "zoom-in" | "zoom-out" | "glitch" | "none";
 
-export type CaptionStyle = "tiktok" | "karaoke" | "neon" | "minimal" | "box";
+export type AnimationEffect = "ken-burns" | "pan-left" | "pan-right" | "zoom-in" | "pulse" | "shake" | "none";
+
+export type CaptionStyle = "tiktok" | "karaoke" | "neon" | "minimal" | "box" | "comic";
 
 export interface SubtitleWord {
   text: string;
@@ -27,14 +29,14 @@ export interface MediaClip {
   thumbnailUrl?: string;
   name: string;
   durationInFrames: number;
-  sourceStartFrame?: number; // for trimmed video clips
-  sourceEndFrame?: number;   // for trimmed video clips
+  sourceStartFrame?: number;
+  sourceEndFrame?: number;
   transition?: TransitionType;
-  transitionDuration?: number; // frames, e.g. 15
+  transitionDuration?: number;
   animationEffect?: AnimationEffect;
   filter?: "none" | "vintage" | "cyberpunk" | "warm" | "cool" | "bw";
-  volume?: number; // 0 to 1
-  speed?: number; // 0.5, 1, 1.5, 2
+  volume?: number;
+  speed?: number;
   titleOverlay?: string;
   subtitleOverlay?: string;
 }
@@ -44,11 +46,37 @@ export interface AudioLayer {
   type: "bgm" | "voiceover" | "sfx";
   url: string;
   title: string;
-  volume: number; // 0 to 1
+  volume: number;
   startFrame: number;
   durationInFrames: number;
   fadeInFrames?: number;
   fadeOutFrames?: number;
+}
+
+export interface VoiceoverConfig {
+  enabled: boolean;
+  language: "id-ID" | "en-US";
+  text: string;
+  audioUrl?: string;
+  voiceGender: "female" | "male";
+  speed: number;
+}
+
+export interface VisualizerConfig {
+  enabled: boolean;
+  style: "bars" | "wave" | "circle";
+  color: string;
+  barCount: number;
+}
+
+export interface AnimatedSticker {
+  id: string;
+  text: string;
+  type: "badge" | "fire" | "sale" | "verified" | "star";
+  position: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center";
+  animation: "bounce" | "pulse" | "glow";
+  startFrame: number;
+  endFrame: number;
 }
 
 export interface CaptionConfig {
@@ -67,6 +95,7 @@ export interface VideoProject {
   title: string;
   description: string;
   tags: string[];
+  template: VideoTemplate;
   aspectRatio: AspectRatio;
   fps: number;
   width: number;
@@ -74,6 +103,9 @@ export interface VideoProject {
   clips: MediaClip[];
   captions: CaptionConfig;
   audioLayers: AudioLayer[];
+  voiceover?: VoiceoverConfig;
+  visualizer?: VisualizerConfig;
+  stickers?: AnimatedSticker[];
   watermark?: {
     text?: string;
     imageUrl?: string;
