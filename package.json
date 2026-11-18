@@ -1,0 +1,41 @@
+{
+  "name": "agent-studio",
+  "version": "1.0.0",
+  "description": "AI Agent Studio Foto & Video - Platform pembuatan dan pengeditan video otomatis berbasis Remotion dan AI",
+  "author": "Armilsyam",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "remotion:preview": "remotion preview src/remotion/index.ts",
+    "remotion:render": "remotion render src/remotion/index.ts MainVideo out/video.mp4",
+    "cli": "node bin/agent-studio-cli.js"
+  },
+  "dependencies": {
+    "next": "^14.2.24",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.218",
+    "@remotion/player": "^4.0.218",
+    "@remotion/bundler": "^4.0.218",
+    "@remotion/renderer": "^4.0.218",
+    "@remotion/cli": "^4.0.218",
+    "lucide-react": "^0.468.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.5",
+    "canvas-confetti": "^1.9.4",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/canvas-confetti": "^1.9.0",
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20"
+  }
+}

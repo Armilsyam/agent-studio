@@ -1,0 +1,48 @@
+name: Render Remotion Video in Cloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      composition:
+        description: "Remotion Composition ID to render"
+        required: true
+        default: "MainVideo"
+      output_filename:
+        description: "Output file name"
+        required: true
+        default: "agent-studio-video.mp4"
+
+jobs:
+  render:
+    name: Render Video with FFmpeg & Chromium
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Render Remotion Composition
+        run: |
+          mkdir -p out
+          npx remotion render src/remotion/index.ts ${{ github.event.inputs.composition }} out/${{ github.event.inputs.output_filename }}
+
+      - name: Upload Rendered Video Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-video
+          path: out/${{ github.event.inputs.output_filename }}
+          retention-days: 7

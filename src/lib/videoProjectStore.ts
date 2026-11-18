@@ -1,0 +1,190 @@
+import { VideoProject, ASPECT_RATIOS } from "../remotion/types";
+import { generateId } from "./utils";
+
+export const DEFAULT_SAMPLE_PROJECT: VideoProject = {
+  id: "project_default_ai_viral",
+  title: "Masa Depan AI: Revolusi Kreativitas Tanpa Batas",
+  description: "Video otomatis tentang revolusi kecerdasan buatan dalam menciptakan visual, video, dan kreativitas masa depan.",
+  tags: ["#AIAgent", "#Remotion", "#TechReels", "#KecerdasanBuatan", "#StudioAI"],
+  aspectRatio: "9:16",
+  fps: 30,
+  width: ASPECT_RATIOS["9:16"].width,
+  height: ASPECT_RATIOS["9:16"].height,
+  clips: [
+    {
+      id: "clip_1",
+      type: "photo",
+      name: "AI Cyber Brain",
+      url: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1080&auto=format&fit=crop&q=80",
+      durationInFrames: 90, // 3 seconds
+      transition: "fade",
+      transitionDuration: 15,
+      animationEffect: "ken-burns",
+      filter: "cyberpunk",
+      titleOverlay: "ERA BARU AI",
+      subtitleOverlay: "Revolusi Kreativitas Dimulai Sekarang",
+    },
+    {
+      id: "clip_2",
+      type: "photo",
+      name: "Robot Assistant Future",
+      url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1080&auto=format&fit=crop&q=80",
+      durationInFrames: 90, // 3 seconds
+      transition: "slide-left",
+      transitionDuration: 15,
+      animationEffect: "zoom-in",
+      filter: "none",
+      titleOverlay: "OTOMATISASI CEPAT",
+      subtitleOverlay: "Dari Teks Langsung Menjadi Video Utuh",
+    },
+    {
+      id: "clip_3",
+      type: "photo",
+      name: "Creative Light Portal",
+      url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1080&auto=format&fit=crop&q=80",
+      durationInFrames: 90, // 3 seconds
+      transition: "zoom-in",
+      transitionDuration: 15,
+      animationEffect: "pan-left",
+      filter: "vintage",
+      titleOverlay: "STUDIO MANDIRI",
+      subtitleOverlay: "Siap Tayang di YouTube, TikTok & Reels",
+    },
+    {
+      id: "clip_4",
+      type: "photo",
+      name: "Abstract Neon Circuit",
+      url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1080&auto=format&fit=crop&q=80",
+      durationInFrames: 90, // 3 seconds
+      transition: "fade",
+      transitionDuration: 15,
+      animationEffect: "pulse",
+      filter: "cyberpunk",
+      titleOverlay: "CUKUP SATU KLIK",
+      subtitleOverlay: "Kerjakan Proyekmu Secara Otomatis",
+    },
+  ],
+  captions: {
+    enabled: true,
+    style: "tiktok",
+    fontSize: 42,
+    fontColor: "#ffffff",
+    highlightColor: "#facc15",
+    fontFamily: "Inter, sans-serif",
+    position: "bottom",
+    lines: [
+      {
+        id: "cap_1",
+        startFrame: 5,
+        endFrame: 85,
+        text: "KINI MEMBUAT VIDEO OTOMATIS JAUH LEBIH MUDAH",
+        words: [
+          { text: "KINI", startFrame: 5, endFrame: 20 },
+          { text: "MEMBUAT", startFrame: 21, endFrame: 35 },
+          { text: "VIDEO", startFrame: 36, endFrame: 50 },
+          { text: "OTOMATIS", startFrame: 51, endFrame: 65 },
+          { text: "LEBIH", startFrame: 66, endFrame: 75 },
+          { text: "MUDAH!", startFrame: 76, endFrame: 85 },
+        ],
+      },
+      {
+        id: "cap_2",
+        startFrame: 95,
+        endFrame: 175,
+        text: "CUKUP KETIKKAN IDE DAN BIARKAN AI BEKERJA",
+        words: [
+          { text: "CUKUP", startFrame: 95, endFrame: 110 },
+          { text: "KETIKKAN", startFrame: 111, endFrame: 125 },
+          { text: "IDE,", startFrame: 126, endFrame: 140 },
+          { text: "BIARKAN", startFrame: 141, endFrame: 155 },
+          { text: "AI", startFrame: 156, endFrame: 165 },
+          { text: "BEKERJA!", startFrame: 166, endFrame: 175 },
+        ],
+      },
+      {
+        id: "cap_3",
+        startFrame: 185,
+        endFrame: 265,
+        text: "DARI FOTO DAN VIDEO DIEDIT RAPI SEKETIKA",
+        words: [
+          { text: "DARI", startFrame: 185, endFrame: 200 },
+          { text: "FOTO", startFrame: 201, endFrame: 215 },
+          { text: "DAN", startFrame: 216, endFrame: 225 },
+          { text: "VIDEO,", startFrame: 226, endFrame: 235 },
+          { text: "DIEDIT", startFrame: 236, endFrame: 245 },
+          { text: "RAPI", startFrame: 246, endFrame: 255 },
+          { text: "SEKETIKA!", startFrame: 256, endFrame: 265 },
+        ],
+      },
+      {
+        id: "cap_4",
+        startFrame: 275,
+        endFrame: 355,
+        text: "SIAP UPLOAD KE YOUTUBE TIKTOK DAN FACEBOOK",
+        words: [
+          { text: "SIAP", startFrame: 275, endFrame: 290 },
+          { text: "UPLOAD", startFrame: 291, endFrame: 305 },
+          { text: "KE", startFrame: 306, endFrame: 315 },
+          { text: "YOUTUBE,", startFrame: 316, endFrame: 325 },
+          { text: "TIKTOK,", startFrame: 326, endFrame: 338 },
+          { text: "DAN", startFrame: 339, endFrame: 345 },
+          { text: "FACEBOOK!", startFrame: 346, endFrame: 355 },
+        ],
+      },
+    ],
+  },
+  audioLayers: [
+    {
+      id: "bgm_default",
+      type: "bgm",
+      url: "https://cdn.freesound.org/previews/665/665181_11861866-lq.mp3",
+      title: "Lo-Fi Aesthetic Cyber Beat",
+      volume: 0.35,
+      startFrame: 0,
+      durationInFrames: 360,
+      fadeInFrames: 30,
+      fadeOutFrames: 30,
+    },
+  ],
+  watermark: {
+    text: "@Armilsyam • Agent Studio",
+    position: "top-right",
+  },
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+export function createNewProject(
+  title: string = "Proyek Video Baru",
+  aspectRatio: "9:16" | "16:9" | "1:1" = "9:16"
+): VideoProject {
+  const config = ASPECT_RATIOS[aspectRatio];
+  return {
+    id: generateId("proj"),
+    title,
+    description: "Proyek video baru dibuat dengan AI Agent Studio",
+    tags: ["#AgentStudio", "#VideoMaker"],
+    aspectRatio,
+    fps: 30,
+    width: config.width,
+    height: config.height,
+    clips: [],
+    captions: {
+      enabled: true,
+      style: "tiktok",
+      fontSize: 38,
+      fontColor: "#ffffff",
+      highlightColor: "#facc15",
+      fontFamily: "Inter, sans-serif",
+      position: "bottom",
+      lines: [],
+    },
+    audioLayers: [],
+    watermark: {
+      text: "@AgentStudio",
+      position: "top-right",
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}

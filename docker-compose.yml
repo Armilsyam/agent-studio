@@ -1,0 +1,14 @@
+services:
+  agent-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent_studio_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    env_file:
+      - .env.example
