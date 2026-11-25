@@ -21,6 +21,9 @@ import {
   Headphones,
 } from "lucide-react";
 import { VideoProject, AspectRatio } from "@/remotion/types";
+import { generateWithClaude } from "@/lib/claudeEngine";
+import { generateAIScript, buildProjectFromAIScript } from "@/lib/aiEngine";
+import { generateClientVoiceover } from "@/lib/voiceoverClient";
 
 interface AIAssistantPanelProps {
   project: VideoProject;
@@ -156,84 +159,69 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
     );
 
     try {
-      const endpoint = isClaude ? "/api/ai/claude" : "/api/ai/script";
       const modelPayload =
         selectedEngine === "claude-3-haiku"
           ? "claude-3-haiku-20240307"
           : "claude-3-5-sonnet-20241022";
 
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      let script;
+      if (isClaude) {
+        script = await generateWithClaude({
           prompt: textToRun,
           targetDuration: durationSeconds,
-          aspectRatio: project.aspectRatio,
           model: modelPayload,
           apiKey: claudeApiKey || undefined,
           audioSync,
-        }),
-      });
+        });
+      } else {
+        script = await generateAIScript(textToRun, durationSeconds);
+      }
 
       setCurrentStep("2. Memotong adegan mengikuti ritme audio & Ken-Burns...");
-      const data = await res.json();
+      let finalProject = buildProjectFromAIScript(script, project.aspectRatio);
 
-      if (data.success && data.project) {
-        let finalProject = data.project;
-
-        // Auto-generate audio voiceover
-        if (autoVoiceover && finalProject.voiceover?.text) {
-          setCurrentStep("3. Mensintesis rekaman suara narasi AI...");
-          try {
-            const voRes = await fetch("/api/ai/voiceover", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                text: finalProject.voiceover.text,
-                language: voiceLang,
-              }),
-            });
-            const voData = await voRes.json();
-            if (voData.success && voData.audioUrl) {
-              finalProject = {
-                ...finalProject,
-                audioLayers: [
-                  ...finalProject.audioLayers,
-                  {
-                    id: `vo_${Date.now()}`,
-                    type: "voiceover",
-                    url: voData.audioUrl,
-                    title: `Suara Narasi Claude (${voiceLang === "id" ? "Indonesia" : "English"})`,
-                    volume: 0.95,
-                    startFrame: 5,
-                    durationInFrames: finalProject.clips.reduce(
-                      (a: number, c: any) => a + c.durationInFrames,
-                      0
-                    ),
-                  },
-                ],
-              };
-            }
-          } catch (e) {
-            console.warn("Auto voiceover error", e);
+      // Auto-generate audio voiceover
+      if (autoVoiceover && finalProject.voiceover?.text) {
+        setCurrentStep("3. Mensintesis rekaman suara narasi AI...");
+        try {
+          const voData = await generateClientVoiceover(finalProject.voiceover.text, voiceLang);
+          if (voData.success && voData.audioUrl) {
+            finalProject = {
+              ...finalProject,
+              audioLayers: [
+                ...finalProject.audioLayers,
+                {
+                  id: `vo_${Date.now()}`,
+                  type: "voiceover",
+                  url: voData.audioUrl,
+                  title: `Suara Narasi Claude (${voiceLang === "id" ? "Indonesia" : "English"})`,
+                  volume: 0.95,
+                  startFrame: 5,
+                  durationInFrames: finalProject.clips.reduce(
+                    (a: number, c: any) => a + c.durationInFrames,
+                    0
+                  ),
+                },
+              ],
+            };
           }
+        } catch (e) {
+          console.warn("Auto voiceover error", e);
         }
-
-        setCurrentStep("4. Menyinkronkan subtitle Alex Hormozi kata per kata...");
-        setTimeout(() => {
-          onProjectUpdate(finalProject);
-          setIsGenerating(false);
-          setCurrentStep(null);
-          addLog(
-            "agent",
-            `✨ Berhasil! Video "${finalProject.title}" telah diproduksi dengan ${
-              isClaude ? "Claude AI Engine" : "AI Studio"
-            }. Setiap adegan visual berganti tepat saat jeda narasi suara (${voiceLang.toUpperCase()}), musik latar bebas hak cipta, dan subtitle animasi TikTok. Klik Play di player untuk menikmati hasilnya!`
-          );
-        }, 500);
-      } else {
-        throw new Error(data.error || "Gagal membuat video");
       }
+
+      setCurrentStep("4. Menyinkronkan subtitle Alex Hormozi kata per kata...");
+      setTimeout(() => {
+        onProjectUpdate(finalProject);
+        setIsGenerating(false);
+        setCurrentStep(null);
+        addLog(
+          "agent",
+          `✨ Berhasil! Video "${finalProject.title}" telah diproduksi dengan ${
+            isClaude ? "Claude AI Engine" : "AI Studio"
+          }. Setiap adegan visual berganti tepat saat jeda narasi suara (${voiceLang.toUpperCase()}), musik latar bebas hak cipta, dan subtitle animasi TikTok. Klik Play di player untuk menikmati hasilnya!`
+        );
+      }, 500);
     } catch (err: any) {
       setIsGenerating(false);
       setCurrentStep(null);

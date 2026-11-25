@@ -12,9 +12,11 @@ node_modules
 /out/
 /build
 
+# Untracked third party folders
+FreeDeepseekAPI-EN/
+
 # Remotion renders
 /public/renders
-/out
 *.mp4
 *.webm
 *.mov

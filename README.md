@@ -1,11 +1,14 @@
 # 🎬 AI Agent Studio Foto & Video
 
+[![GitHub Pages](https://img.shields.io/badge/Demo_Live-armilsyam.github.io%2Fagent--studio-emerald?style=for-the-badge&logo=github)](https://armilsyam.github.io/agent-studio/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Remotion](https://img.shields.io/badge/Video_Engine-Remotion_4.x-indigo.svg)](https://www.remotion.dev)
 [![Next.js](https://img.shields.io/badge/Framework-Next.js_14-black.svg)](https://nextjs.org)
 [![Tailwind CSS](https://img.shields.io/badge/Styling-TailwindCSS-38bdf8.svg)](https://tailwindcss.com)
 
-**AI Agent Studio** adalah platform pembuatan, pengeditan, dan pemotongan video otomatis dari foto & video berbasis kecerdasan buatan dan **Remotion**. Dilengkapi dengan dashboard visual modern, pemotong klip interaktif (trimmer & splitter), generator naskah & storyboard otomatis, subtitle animasi gaya TikTok (Alex Hormozi highlight), audio synthesizer (TTS), serta otomasi unggah ke YouTube, TikTok, dan Facebook.
+> 🚀 **Demo Langsung (Live Website):** [https://armilsyam.github.io/agent-studio/](https://armilsyam.github.io/agent-studio/)
+
+**AI Agent Studio** adalah platform pembuatan, pengeditan, dan pemotongan video otomatis dari foto & video berbasis kecerdasan buatan, **Claude 3.5**, dan **Remotion**. Dilengkapi dengan dashboard visual modern, pemotong klip interaktif (trimmer & splitter), generator naskah & storyboard otomatis, subtitle animasi gaya TikTok (Alex Hormozi highlight), audio synthesizer (TTS), serta otomasi unggah ke YouTube, TikTok, dan Facebook.
 
 Platform ini didesain agar dapat diakses **100% GRATIS** baik secara lokal maupun di GitHub, tanpa kewajiban biaya API eksternal!
 

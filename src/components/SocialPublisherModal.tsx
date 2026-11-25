@@ -13,7 +13,12 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { VideoProject } from "@/remotion/types";
-import { SocialPlatform } from "@/lib/socialAutomation";
+import {
+  SocialPlatform,
+  publishToYouTube,
+  publishToTikTok,
+  publishToFacebook,
+} from "@/lib/socialAutomation";
 
 interface SocialPublisherModalProps {
   isOpen: boolean;
@@ -40,24 +45,17 @@ export const SocialPublisherModal: React.FC<SocialPublisherModalProps> = ({
     setPublishResult(null);
 
     try {
-      const res = await fetch("/api/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          platform,
-          title,
-          description,
-          tags: tags.split(" ").filter((t) => t.trim().length > 0),
-          videoUrl: project.clips[0]?.url,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setPublishResult(data.result);
+      const tagList = tags.split(" ").filter((t) => t.trim().length > 0);
+      let res;
+      if (platform === "youtube") {
+        res = await publishToYouTube({ title, description, tags: tagList });
+      } else if (platform === "tiktok") {
+        res = await publishToTikTok({ title, tags: tagList, videoUrl: project.clips[0]?.url });
       } else {
-        throw new Error(data.error || "Gagal memproses publikasi");
+        res = await publishToFacebook({ title, description, tags: tagList });
       }
+
+      setPublishResult(res);
     } catch (err: any) {
       alert(`Error publikasi: ${err.message}`);
     } finally {

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { AudioLayer, VoiceoverConfig } from "@/remotion/types";
 import { CURATED_STOCK_AUDIO, StockAudioItem } from "@/lib/stockMediaService";
+import { generateClientVoiceover } from "@/lib/voiceoverClient";
 import {
   Music,
   Volume2,
@@ -104,16 +105,11 @@ export const AudioBgmSelector: React.FC<AudioBgmSelectorProps> = ({
     setVoiceSuccess(false);
 
     try {
-      const res = await fetch("/api/ai/voiceover", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: ttsText,
-          language: selectedLang.startsWith("en") ? "en" : "id",
-        }),
-      });
+      const data = await generateClientVoiceover(
+        ttsText,
+        selectedLang.startsWith("en") ? "en" : "id"
+      );
 
-      const data = await res.json();
       if (data.success && data.audioUrl) {
         // Add or update voiceover layer in timeline
         const newVoiceoverLayer: AudioLayer = {
@@ -149,7 +145,7 @@ export const AudioBgmSelector: React.FC<AudioBgmSelectorProps> = ({
         setVoiceSuccess(true);
         setTimeout(() => setVoiceSuccess(false), 3000);
       } else {
-        throw new Error(data.error || "Gagal membuat audio voiceover");
+        throw new Error("Gagal membuat audio voiceover");
       }
     } catch (err: any) {
       alert(`Error suara voiceover: ${err.message}`);
