@@ -9,6 +9,7 @@ import { AudioTrack } from "./AudioTrack";
 import { AudioVisualizer } from "./AudioVisualizer";
 import { AnimatedStickers } from "./AnimatedStickers";
 import { TemplateOverlay } from "./TemplateOverlay";
+import { AIActorPresenter } from "./AIActorPresenter";
 import { getTotalDurationInFrames } from "@/lib/utils";
 
 export interface MainCompositionProps {
@@ -16,7 +17,16 @@ export interface MainCompositionProps {
 }
 
 export const MainComposition: React.FC<MainCompositionProps> = ({ project }) => {
-  const { clips, captions, audioLayers, watermark, template = "viral-tiktok", visualizer, stickers } = project;
+  const {
+    clips,
+    captions,
+    audioLayers,
+    watermark,
+    template = "viral-tiktok",
+    visualizer,
+    stickers,
+    actor,
+  } = project;
   const totalFrames = getTotalDurationInFrames(clips);
 
   return (
@@ -38,6 +48,9 @@ export const MainComposition: React.FC<MainCompositionProps> = ({ project }) => 
 
       {/* Dynamic Animated Audio Waveform Visualizer */}
       <AudioVisualizer config={visualizer} />
+
+      {/* Virtual AI Actor / Presenter Overlay */}
+      <AIActorPresenter actor={actor} />
 
       {/* Animated Stickers & Badges */}
       <AnimatedStickers stickers={stickers} />

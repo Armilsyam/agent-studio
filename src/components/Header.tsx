@@ -15,6 +15,8 @@ import {
   Film,
   Radio,
   ShoppingBag,
+  UserCheck,
+  Key,
 } from "lucide-react";
 
 interface HeaderProps {
@@ -25,6 +27,7 @@ interface HeaderProps {
   onOpenExport: () => void;
   onOpenPublisher: () => void;
   onOpenClipCutter: () => void;
+  onOpenKeyManager?: () => void;
   activeClipCount: number;
   projectTitle: string;
   onTitleChange: (title: string) => void;
@@ -38,6 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenExport,
   onOpenPublisher,
   onOpenClipCutter,
+  onOpenKeyManager,
   activeClipCount,
   projectTitle,
   onTitleChange,
@@ -62,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
             type="text"
             value={projectTitle}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="text-xs text-slate-400 hover:text-slate-200 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 -ml-1 w-56 md:w-64 truncate"
+            className="text-xs text-slate-400 hover:text-slate-200 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 -ml-1 w-52 md:w-60 truncate"
             title="Klik untuk mengubah nama proyek"
           />
         </div>
@@ -74,6 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center bg-studio-dark p-1 rounded-xl border border-studio-border">
           {[
             { id: "viral-tiktok", label: "TikTok Viral", icon: Sparkles },
+            { id: "ai-presenter", label: "AI Presenter", icon: UserCheck },
             { id: "cinematic-docu", label: "Dokumenter", icon: Film },
             { id: "podcast-waveform", label: "Audiogram", icon: Radio },
             { id: "product-promo", label: "Promo Produk", icon: ShoppingBag },
@@ -126,6 +131,18 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
+        {/* API Key Manager Button */}
+        {onOpenKeyManager && (
+          <button
+            onClick={onOpenKeyManager}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-purple-300 hover:text-white bg-purple-950/40 hover:bg-purple-900/50 border border-purple-500/40 rounded-lg transition shadow-sm"
+            title="Kelola API Key AI (Claude, OpenAI, Gemini)"
+          >
+            <Key className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden xl:inline">API Key</span>
+          </button>
+        )}
+
         {/* Clip Cutter */}
         <button
           onClick={onOpenClipCutter}

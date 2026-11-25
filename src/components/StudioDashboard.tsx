@@ -11,6 +11,8 @@ import { AudioBgmSelector } from "./AudioBgmSelector";
 import { ClipCutterModal } from "./ClipCutterModal";
 import { ExportModal } from "./ExportModal";
 import { SocialPublisherModal } from "./SocialPublisherModal";
+import { ActorSelectorPanel } from "./ActorSelectorPanel";
+import { APIKeyManagerModal } from "./APIKeyManagerModal";
 import {
   VideoProject,
   AspectRatio,
@@ -20,16 +22,17 @@ import {
 } from "@/remotion/types";
 import { DEFAULT_SAMPLE_PROJECT } from "@/lib/videoProjectStore";
 import { generateId, getTotalDurationInFrames } from "@/lib/utils";
-import { Bot, Image as ImageIcon, Type, Music } from "lucide-react";
+import { Bot, Image as ImageIcon, Type, Music, UserCheck } from "lucide-react";
 
 export const StudioDashboard: React.FC = () => {
   const [project, setProject] = useState<VideoProject>(DEFAULT_SAMPLE_PROJECT);
-  const [activeSideTab, setActiveSideTab] = useState<"ai" | "media" | "subtitles" | "audio">("ai");
+  const [activeSideTab, setActiveSideTab] = useState<"ai" | "media" | "subtitles" | "audio" | "actor">("ai");
 
   // Modals state
   const [isClipCutterOpen, setIsClipCutterOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isPublisherOpen, setIsPublisherOpen] = useState(false);
+  const [isKeyManagerOpen, setIsKeyManagerOpen] = useState(false);
   const [activeClipToCut, setActiveClipToCut] = useState<string | undefined>(undefined);
 
   // Template switch
@@ -176,6 +179,7 @@ export const StudioDashboard: React.FC = () => {
         onOpenExport={() => setIsExportOpen(true)}
         onOpenPublisher={() => setIsPublisherOpen(true)}
         onOpenClipCutter={() => handleOpenTrimmer()}
+        onOpenKeyManager={() => setIsKeyManagerOpen(true)}
         activeClipCount={project.clips.length}
         projectTitle={project.title}
         onTitleChange={(title) => setProject((prev) => ({ ...prev, title }))}
@@ -195,6 +199,18 @@ export const StudioDashboard: React.FC = () => {
             title="AI Studio Assistant"
           >
             <Bot className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => setActiveSideTab("actor")}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition ${
+              activeSideTab === "actor"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+            }`}
+            title="AI Presenter & Aktor Virtual"
+          >
+            <UserCheck className="w-5 h-5" />
           </button>
 
           <button
@@ -240,6 +256,12 @@ export const StudioDashboard: React.FC = () => {
             project={project}
             onProjectUpdate={setProject}
             onRatioChange={handleRatioChange}
+          />
+        )}
+        {activeSideTab === "actor" && (
+          <ActorSelectorPanel
+            actor={project.actor}
+            onChange={(actor) => setProject((prev) => ({ ...prev, actor }))}
           />
         )}
         {activeSideTab === "media" && (
@@ -302,6 +324,12 @@ export const StudioDashboard: React.FC = () => {
         isOpen={isPublisherOpen}
         onClose={() => setIsPublisherOpen(false)}
         project={project}
+      />
+
+      {/* API Key Manager Modal */}
+      <APIKeyManagerModal
+        isOpen={isKeyManagerOpen}
+        onClose={() => setIsKeyManagerOpen(false)}
       />
     </div>
   );

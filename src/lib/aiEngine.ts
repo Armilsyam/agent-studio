@@ -1,6 +1,7 @@
-import { MediaClip, SubtitleLine, VideoProject, ASPECT_RATIOS, VideoTemplate } from "../remotion/types";
+import { MediaClip, SubtitleLine, VideoProject, ASPECT_RATIOS, VideoTemplate, AIActorConfig } from "../remotion/types";
 import { generateId, secondsToFrames } from "./utils";
 import { CURATED_STOCK_MEDIA, CURATED_STOCK_AUDIO, getAssetsForTheme } from "./stockMediaService";
+import { generateUnlimitedAIImageUrl, PRESET_AI_ACTORS, buildSceneVisualPrompt } from "./unlimitedMediaEngine";
 
 export interface AIScriptResult {
   title: string;
@@ -207,14 +208,17 @@ export function buildProjectFromAIScript(
 
   script.scenes.forEach((scene, index) => {
     const durationFrames = secondsToFrames(scene.durationSeconds, fps);
-    const asset = matchedAssets[index % matchedAssets.length];
+    
+    // Generate bespoke unlimited AI visual matching the exact scene prompt!
+    const scenePrompt = buildSceneVisualPrompt(script.title, index, scene.titleOverlay || scene.caption);
+    const bespokeImageUrl = generateUnlimitedAIImageUrl(scenePrompt, config.width, config.height, index + 100);
 
     clips.push({
       id: generateId("clip"),
-      type: asset.type,
+      type: "photo",
       name: `${scene.titleOverlay || "Scene"} #${index + 1}`,
-      url: asset.url,
-      thumbnailUrl: asset.thumbnailUrl,
+      url: bespokeImageUrl,
+      thumbnailUrl: bespokeImageUrl,
       durationInFrames: durationFrames,
       transition: scene.transition,
       transitionDuration: 15,
@@ -222,6 +226,7 @@ export function buildProjectFromAIScript(
       filter: scene.filter,
       titleOverlay: scene.titleOverlay,
       subtitleOverlay: scene.caption,
+      promptDescription: scenePrompt,
     });
 
     // Subtitle synchronization
@@ -290,6 +295,19 @@ export function buildProjectFromAIScript(
       text: fullVoiceoverText.trim(),
       voiceGender: "female",
       speed: 1.0,
+    },
+    actor: {
+      enabled: script.suggestedTemplate !== "cinematic-docu",
+      actorId: script.theme === "culinary" || script.theme === "travel" ? "actor_maya" : "actor_sarah",
+      name: script.theme === "culinary" || script.theme === "travel" ? "Maya (Host)" : "Sarah (AI Host)",
+      avatarUrl:
+        script.theme === "culinary" || script.theme === "travel"
+          ? PRESET_AI_ACTORS[3].avatarUrl
+          : PRESET_AI_ACTORS[0].avatarUrl,
+      position: "bottom-right",
+      size: "medium",
+      style: "circle",
+      titleLabel: "AI Presenter",
     },
     visualizer: {
       enabled: script.suggestedTemplate === "podcast-waveform" || script.suggestedTemplate === "viral-tiktok",

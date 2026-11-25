@@ -1,6 +1,13 @@
 export type AspectRatio = "9:16" | "16:9" | "1:1";
 
-export type VideoTemplate = "viral-tiktok" | "cinematic-docu" | "podcast-waveform" | "product-promo";
+export type VideoTemplate =
+  | "viral-tiktok"
+  | "cinematic-docu"
+  | "podcast-waveform"
+  | "product-promo"
+  | "ai-presenter"
+  | "breaking-news"
+  | "top5-listicle";
 
 export type TransitionType = "fade" | "slide-left" | "slide-right" | "zoom-in" | "zoom-out" | "glitch" | "none";
 
@@ -39,6 +46,7 @@ export interface MediaClip {
   speed?: number;
   titleOverlay?: string;
   subtitleOverlay?: string;
+  promptDescription?: string;
 }
 
 export interface AudioLayer {
@@ -79,6 +87,17 @@ export interface AnimatedSticker {
   endFrame: number;
 }
 
+export interface AIActorConfig {
+  enabled: boolean;
+  actorId: string;
+  name: string;
+  avatarUrl: string;
+  position: "bottom-right" | "bottom-left" | "center" | "top-right";
+  size: "small" | "medium" | "large";
+  style: "circle" | "card" | "floating";
+  titleLabel?: string;
+}
+
 export interface CaptionConfig {
   enabled: boolean;
   style: CaptionStyle;
@@ -104,6 +123,7 @@ export interface VideoProject {
   captions: CaptionConfig;
   audioLayers: AudioLayer[];
   voiceover?: VoiceoverConfig;
+  actor?: AIActorConfig;
   visualizer?: VisualizerConfig;
   stickers?: AnimatedSticker[];
   watermark?: {
