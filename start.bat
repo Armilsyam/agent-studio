@@ -5,8 +5,8 @@ echo        AI AGENT STUDIO FOTO ^& VIDEO (REMOTION)
 echo ========================================================
 echo.
 echo Menjalankan server di IP Lokal:
-echo    - http://localhost:3000
-echo    - http://192.168.1.9:3000
+echo    - http://localhost:3001
+echo    - http://192.168.1.13:3001
 echo.
 call npm.cmd run start
 pause
